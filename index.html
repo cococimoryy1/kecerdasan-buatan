@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Adventure</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            background: #87CEEB;
+        }
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://i.pinimg.com/736x/f7/a1/8e/f7a18ee3567d8b7ddee1f46b26f89e1c.jpg') no-repeat center center/cover;
+            opacity: 0.9;
+            z-index: 1;
+            animation: bgGlow 10s infinite alternate;
+        }
+        @keyframes bgGlow {
+            0% { filter: brightness(1); }
+            50% { filter: brightness(1.1); }
+            100% { filter: brightness(1); }
+        }
+        .container {
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            border: 3px solid #FFD700;
+            transform: perspective(500px) rotateX(5deg);
+            transition: transform 0.3s;
+        }
+        .container:hover {
+            transform: perspective(500px) rotateX(0deg);
+        }
+        h1 {
+            color: #1E90FF; /* Changed to blue */
+            font-size: 32px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px #FFFFFF;
+            text-transform: uppercase;
+            animation: bounceIn 1s;
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .question {
+            font-size: 22px;
+            margin-bottom: 25px;
+            color: #2F4F4F;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .options button {
+            display: block;
+            width: 85%;
+            padding: 15px;
+            margin: 15px auto;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(45deg, #87CEEB, #ADD8E6);
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 3;
+        }
+        .options button::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: rgba(255, 255, 255, 0.3);
+            transition: width 0.3s ease;
+        }
+        .options button:hover::after {
+            width: 100%;
+        }
+        .options button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .start-button {
+            background: linear-gradient(45deg, #87CEEB, #ADD8E6);
+            padding: 18px 35px;
+            border-radius: 15px;
+            color: white;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            z-index: 3;
+        }
+        .start-button:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 5px 15px rgba(135, 206, 235, 0.5);
+        }
+        .back-button {
+            background: linear-gradient(45deg, #87CEEB, #ADD8E6);
+            padding: 12px 25px;
+            border-radius: 15px;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 5;
+            transition: all 0.3s ease;
+        }
+        .back-button:hover {
+            transform: rotate(-5deg) scale(1.1);
+            box-shadow: 0 5px 15px rgba(135, 206, 235, 0.5);
+        }
+        .result {
+            font-size: 24px;
+            margin-top: 20px;
+            color: #2F4F4F;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px #FFFFFF;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .result img {
+            width: 70px;
+            margin-bottom: 15px;
+            animation: float 3s infinite ease-in-out;
+        }
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0); }
+        }
+        .progress-bar {
+            width: 100%;
+            background: #ddd;
+            height: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #FFD700;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            background: linear-gradient(45deg, #32CD32, #ADFF2F);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <div class="container" id="container">
+        <h1>CARI TAU CUACA HARI INI YUK</h1>
+        <button class="start-button" onclick="startQuiz()">MULAI</button>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Bagaimana warna langit saat ini?",
+                options: ["biru", "abu-abu"],
+                key: "langit"
+            },
+            {
+                question: "Seberapa banyak awan di langit?",
+                options: ["sedikit", "banyak"],
+                key: "awan"
+            },
+            {
+                question: "Bagaimana kondisi angin saat ini?",
+                options: ["lemah", "sedang", "kencang"],
+                key: "angin"
+            },
+            {
+                question: "Apakah ada petir atau kilat di langit?",
+                options: ["ada", "tidak ada"],
+                key: "petir"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let answers = {};
+        let progress = 0;
+
+        function startQuiz() {
+            currentQuestion = 0;
+            answers = {};
+            progress = 0;
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const container = document.getElementById("container");
+            if (currentQuestion >= questions.length) {
+                showResult();
+                return;
+            }
+
+            const q = questions[currentQuestion];
+            progress = ((currentQuestion + 1) / questions.length) * 100;
+
+            let html = `
+                <div class="progress-bar">
+                    <div class="progress" style="width: ${progress}%"></div>
+                </div>
+                <div class="question">${q.question}</div>
+                <div class="options">
+            `;
+            q.options.forEach(option => {
+                html += `<button onclick="selectOption('${option}')">${option}</button>`;
+            });
+            html += `</div>`;
+            container.innerHTML = html;
+
+            // Show back button only if not on the first question
+            const backButton = document.querySelector(".back-button");
+            if (!backButton && currentQuestion > 0) {
+                const newBackButton = document.createElement("button");
+                newBackButton.className = "back-button";
+                newBackButton.innerHTML = "« BACK";
+                newBackButton.onclick = goBack;
+                document.body.appendChild(newBackButton);
+            } else if (backButton && currentQuestion === 0) {
+                backButton.remove();
+            }
+        }
+
+        function goBack() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                const key = questions[currentQuestion].key;
+                delete answers[key];
+                showQuestion();
+            } else {
+                const container = document.getElementById("container");
+                container.innerHTML = `
+                    <h1>CARI TAU CUACA HARI INI YUK</h1>
+                    <button class="start-button" onclick="startQuiz()">MULAI</button>
+                `;
+                const backButton = document.querySelector(".back-button");
+                if (backButton) backButton.remove();
+            }
+        }
+
+        function selectOption(option) {
+            answers[questions[currentQuestion].key] = option;
+            currentQuestion++;
+            showQuestion();
+        }
+
+        function backwardChaining() {
+            let udara, cuaca;
+
+            // R1-R4: Determine udara based on langit and awan
+            if (answers.langit === "biru" && answers.awan === "sedikit") {
+                udara = "kering"; // R1
+            } else if (answers.langit === "biru" && answers.awan === "banyak") {
+                udara = "normal"; // R2
+            } else if (answers.langit === "abu-abu" && answers.awan === "sedikit") {
+                udara = "lembab"; // R3
+            } else if (answers.langit === "abu-abu" && answers.awan === "banyak") {
+                udara = "sangat lembab"; // R4
+            }
+
+            // R5-R10: Determine cuaca based on udara, angin, and petir
+            if (udara === "kering" && answers.angin === "lemah" && answers.petir === "tidak ada") {
+                cuaca = "panas terik"; // R5
+            } else if (udara === "normal" && answers.angin === "lemah" && answers.petir === "tidak ada") {
+                cuaca = "cerah"; // R6
+            } else if (udara === "normal" && answers.angin === "sedang" && answers.petir === "tidak ada") {
+                cuaca = "mendung"; // R7
+            } else if (udara === "lembab" && answers.angin === "sedang" && answers.petir === "tidak ada") {
+                cuaca = "mendung"; // R8
+            } else if (udara === "sangat lembab" && answers.angin === "sedang" && answers.petir === "ada") {
+                cuaca = "hujan"; // R9
+            } else if (udara === "sangat lembab" && answers.angin === "kencang" && answers.petir === "ada") {
+                cuaca = "badai"; // R10
+            } else {
+                cuaca = "tidak dapat diprediksi";
+            }
+
+            return cuaca;
+        }
+
+        function showResult() {
+            const cuaca = backwardChaining();
+            const container = document.getElementById("container");
+            let icon, message;
+
+            switch (cuaca) {
+                case "cerah":
+                    icon = "☀️";
+                    message = "Wah, cuacanya cerah banget hari ini! Langit bersih dan udaranya menyejukkan. Cocok banget buat jalan-jalan atau berjemur di bawah matahari! 🌞";
+                    break;
+                case "panas terik":
+                    icon = "🔥";
+                    message = "Cuacanya panas terik, matahari bersinar terang banget! Jangan lupa pakai sunblock dan minum air putih yang cukup ya. 😎";
+                    break;
+                case "mendung":
+                    icon = "☁️";
+                    message = "Cuacanya lagi mendung, nih. Matahari malu-malu buat muncul. Mungkin enaknya rebahan sambil ngopi hangat ya? ⛅";
+                    break;
+                case "hujan":
+                    icon = "🌧️";
+                    message = "Sepertinya sedang turun hujan. Jangan lupa bawa payung kalau mau keluar, ya! Hati-hati di jalan. 🌧️";
+                    break;
+                case "badai":
+                    icon = "⛈️";
+                    message = "Wah, cuacanya lagi buruk banget! Petir, angin, dan hujan deras menyatu. Sebaiknya tetap di dalam rumah dan hindari keluar dulu ya! ⚡";
+                    break;
+                default:
+                    icon = "❓";
+                    message = "Hmm, cuacanya tidak dapat diprediksi dengan pasti. Tetap waspada ya!";
+            }
+
+            container.innerHTML = `
+                <div class="result">
+                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='70' height='70'><text x='0' y='60' font-size='60'>${icon}</text></svg>" alt="weather icon">
+                    <h1 style="text-transform: uppercase;">${cuaca}</h1>
+                    <p>${message}</p>
+                </div>
+                <button class="start-button" onclick="goToHome()">Back to Home</button>
+            `;
+            const backButton = document.querySelector(".back-button");
+            if (backButton) backButton.remove();
+        }
+
+        function goToHome() {
+            const container = document.getElementById("container");
+            currentQuestion = 0;
+            answers = {};
+            progress = 0;
+            container.innerHTML = `
+                <h1>CARI TAU CUACA HARI INI YUK</h1>
+                <button class="start-button" onclick="startQuiz()">MULAI</button>
+            `;
+            const backButton = document.querySelector(".back-button");
+            if (backButton) backButton.remove();
+        }
+    </script>
+</body>
+</html>
