@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Adventure</title>
+    <title>Petualangan Cuaca</title>
     <style>
         body {
             margin: 0;
@@ -50,7 +50,7 @@
             transform: perspective(500px) rotateX(0deg);
         }
         h1 {
-            color: #1E90FF; /* Changed to blue */
+            color: #1E90FF;
             font-size: 32px;
             margin-bottom: 20px;
             text-shadow: 2px 2px 4px #FFFFFF;
@@ -190,22 +190,27 @@
         const questions = [
             {
                 question: "Bagaimana warna langit saat ini?",
-                options: ["biru", "abu-abu"],
+                options: ["Biru", "Abu-abu"],
                 key: "langit"
             },
             {
                 question: "Seberapa banyak awan di langit?",
-                options: ["sedikit", "banyak"],
+                options: ["Sedikit", "Banyak"],
                 key: "awan"
             },
             {
+                question: "Bagaimana kondisi udara saat ini?",
+                options: ["Normal", "Kering", "Lembab"],
+                key: "udara"
+            },
+            {
                 question: "Bagaimana kondisi angin saat ini?",
-                options: ["lemah", "sedang", "kencang"],
+                options: ["Biasa", "Sedang", "Kencang"],
                 key: "angin"
             },
             {
                 question: "Apakah ada petir atau kilat di langit?",
-                options: ["ada", "tidak ada"],
+                options: ["Ada", "Tidak ada"],
                 key: "petir"
             }
         ];
@@ -244,12 +249,12 @@
             html += `</div>`;
             container.innerHTML = html;
 
-            // Show back button only if not on the first question
+            // Tampilkan tombol kembali hanya jika bukan pertanyaan pertama
             const backButton = document.querySelector(".back-button");
             if (!backButton && currentQuestion > 0) {
                 const newBackButton = document.createElement("button");
                 newBackButton.className = "back-button";
-                newBackButton.innerHTML = "« BACK";
+                newBackButton.innerHTML = "« KEMBALI";
                 newBackButton.onclick = goBack;
                 document.body.appendChild(newBackButton);
             } else if (backButton && currentQuestion === 0) {
@@ -281,37 +286,53 @@
         }
 
         function backwardChaining() {
-            let udara, cuaca;
-
-            // R1-R4: Determine udara based on langit and awan
-            if (answers.langit === "biru" && answers.awan === "sedikit") {
-                udara = "kering"; // R1
-            } else if (answers.langit === "biru" && answers.awan === "banyak") {
-                udara = "normal"; // R2
-            } else if (answers.langit === "abu-abu" && answers.awan === "sedikit") {
-                udara = "lembab"; // R3
-            } else if (answers.langit === "abu-abu" && answers.awan === "banyak") {
-                udara = "sangat lembab"; // R4
+            // Hipotesis 1: Apakah cuaca Cerah? (R9)
+            if (answers.angin === "Biasa" && answers.petir === "Tidak ada") {
+                if (answers.udara === "Normal") {
+                    if ((answers.langit === "Biru" && (answers.awan === "Sedikit" || answers.awan === "Banyak"))) {
+                        return "Cerah"; // R9, R3/R5
+                    }
+                }
             }
 
-            // R5-R10: Determine cuaca based on udara, angin, and petir
-            if (udara === "kering" && answers.angin === "lemah" && answers.petir === "tidak ada") {
-                cuaca = "panas terik"; // R5
-            } else if (udara === "normal" && answers.angin === "lemah" && answers.petir === "tidak ada") {
-                cuaca = "cerah"; // R6
-            } else if (udara === "normal" && answers.angin === "sedang" && answers.petir === "tidak ada") {
-                cuaca = "mendung"; // R7
-            } else if (udara === "lembab" && answers.angin === "sedang" && answers.petir === "tidak ada") {
-                cuaca = "mendung"; // R8
-            } else if (udara === "sangat lembab" && answers.angin === "sedang" && answers.petir === "ada") {
-                cuaca = "hujan"; // R9
-            } else if (udara === "sangat lembab" && answers.angin === "kencang" && answers.petir === "ada") {
-                cuaca = "badai"; // R10
-            } else {
-                cuaca = "tidak dapat diprediksi";
+            // Hipotesis 2: Apakah cuaca Panas Terik? (R10)
+            if (answers.angin === "Biasa" && answers.petir === "Tidak ada") {
+                if (answers.udara === "Kering") {
+                    if ((answers.langit === "Biru" && (answers.awan === "Sedikit" || answers.awan === "Banyak"))) {
+                        return "Panas Terik"; // R10, R4/R6
+                    }
+                }
             }
 
-            return cuaca;
+            // Hipotesis 3: Apakah cuaca Mendung? (R11)
+            if (answers.angin === "Sedang" && answers.petir === "Tidak ada") {
+                if (answers.udara === "Lembab") {
+                    if ((answers.langit === "Abu-abu" && (answers.awan === "Sedikit" || answers.awan === "Banyak"))) {
+                        return "Mendung"; // R11, R7/R8
+                    }
+                }
+            }
+
+            // Hipotesis 4: Apakah cuaca Hujan? (R12)
+            if (answers.angin === "Sedang" && answers.petir === "Ada") {
+                if (answers.udara === "Lembab") {
+                    if ((answers.langit === "Abu-abu" && (answers.awan === "Sedikit" || answers.awan === "Banyak"))) {
+                        return "Hujan"; // R12, R7/R8
+                    }
+                }
+            }
+
+            // Hipotesis 5: Apakah cuaca Badai? (R13)
+            if (answers.angin === "Kencang" && answers.petir === "Ada") {
+                if (answers.udara === "Lembab") {
+                    if ((answers.langit === "Abu-abu" && (answers.awan === "Sedikit" || answers.awan === "Banyak"))) {
+                        return "Badai"; // R13, R7/R8
+                    }
+                }
+            }
+
+            // Jika tidak ada hipotesis yang cocok
+            return "Tidak dapat diprediksi";
         }
 
         function showResult() {
@@ -320,24 +341,24 @@
             let icon, message;
 
             switch (cuaca) {
-                case "cerah":
-                    icon = "☀️";
+                case "Cerah":
+                    icon = "☀";
                     message = "Wah, cuacanya cerah banget hari ini! Langit bersih dan udaranya menyejukkan. Cocok banget buat jalan-jalan atau berjemur di bawah matahari! 🌞";
                     break;
-                case "panas terik":
+                case "Panas Terik":
                     icon = "🔥";
                     message = "Cuacanya panas terik, matahari bersinar terang banget! Jangan lupa pakai sunblock dan minum air putih yang cukup ya. 😎";
                     break;
-                case "mendung":
-                    icon = "☁️";
+                case "Mendung":
+                    icon = "☁";
                     message = "Cuacanya lagi mendung, nih. Matahari malu-malu buat muncul. Mungkin enaknya rebahan sambil ngopi hangat ya? ⛅";
                     break;
-                case "hujan":
-                    icon = "🌧️";
-                    message = "Sepertinya sedang turun hujan. Jangan lupa bawa payung kalau mau keluar, ya! Hati-hati di jalan. 🌧️";
+                case "Hujan":
+                    icon = "🌧";
+                    message = "Sepertinya sedang turun hujan. Jangan lupa bawa payung kalau mau keluar, ya! Hati-hati di jalan. 🌧";
                     break;
-                case "badai":
-                    icon = "⛈️";
+                case "Badai":
+                    icon = "⛈";
                     message = "Wah, cuacanya lagi buruk banget! Petir, angin, dan hujan deras menyatu. Sebaiknya tetap di dalam rumah dan hindari keluar dulu ya! ⚡";
                     break;
                 default:
@@ -347,11 +368,11 @@
 
             container.innerHTML = `
                 <div class="result">
-                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='70' height='70'><text x='0' y='60' font-size='60'>${icon}</text></svg>" alt="weather icon">
+                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='70' height='70'><text x='0' y='60' font-size='60'>${icon}</text></svg>" alt="ikon cuaca">
                     <h1 style="text-transform: uppercase;">${cuaca}</h1>
                     <p>${message}</p>
                 </div>
-                <button class="start-button" onclick="goToHome()">Back to Home</button>
+                <button class="start-button" onclick="goToHome()">Kembali ke Beranda</button>
             `;
             const backButton = document.querySelector(".back-button");
             if (backButton) backButton.remove();
